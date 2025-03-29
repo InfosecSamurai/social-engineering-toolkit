@@ -1,0 +1,5 @@
+SSID = Free_WiFi
+CHANNEL = 6
+INTERFACE = wlan0
+AUTH_MODE = open
+CAPTURE_LOGS = /var/log/evil_twin_capture.log
