@@ -1,0 +1,11 @@
+title: USB Drop Attack
+logsource:
+  product: linux
+detection:
+  keywords:
+    - "* * * * * ncat"
+    - "tar -czf /tmp/.stolen_data"
+  condition: keywords
+falsepositives:
+  - Legitimate cron jobs
+level: high
