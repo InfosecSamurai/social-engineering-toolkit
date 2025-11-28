@@ -1,9 +1,14 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import os
+import logging
 
-def send_email(sender_email, sender_password, receiver_email, subject, message):
+def send_email(receiver_email, subject, message):
     """Send an email using SMTP."""
+    sender_email = os.getenv('EMAIL_USERNAME')  # Use environment variable
+    sender_password = os.getenv('EMAIL_PASSWORD')  # Use environment variable
+    
     try:
         msg = MIMEMultipart()
         msg['From'] = sender_email
@@ -12,16 +17,16 @@ def send_email(sender_email, sender_password, receiver_email, subject, message):
         msg.attach(MIMEText(message, 'plain'))
 
         # Connect to SMTP server
-        server = smtplib.SMTP('smtp.example.com', 587)
+        server = smtplib.SMTP('smtp.example.com', 587)  # Consider making this configurable
         server.starttls()
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
         server.quit()
 
-        print(f"Email sent to {receiver_email}")
+        logging.info(f"Email sent to {receiver_email}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        logging.error(f"Failed to send email: {e}")
 
 # Example usage
 if __name__ == '__main__':
-    send_email('your_email@example.com', 'your_password', 'victim@example.com', 'Security Alert', 'Click the link: http://fake-login.com')
+    send_email('victim@example.com', 'Security Alert', 'Click the link: http://fake-login.com')
