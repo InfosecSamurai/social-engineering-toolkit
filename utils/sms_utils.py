@@ -1,18 +1,24 @@
 from twilio.rest import Client
+import os
+import logging
 
-def send_sms(account_sid, auth_token, twilio_number, target_number, message):
+def send_sms(target_number, message):
     """Send an SMS using Twilio."""
+    account_sid = os.getenv('TWILIO_SID')  # Use environment variable
+    auth_token = os.getenv('TWILIO_AUTH')  # Use environment variable
+    twilio_number = os.getenv('TWILIO_PHONE')  # Use environment variable
+    
     try:
         client = Client(account_sid, auth_token)
-        message = client.messages.create(
+        sms_message = client.messages.create(
             body=message,
             from_=twilio_number,
             to=target_number
         )
-        print(f"SMS sent to {target_number}: {message.sid}")
+        logging.info(f"SMS sent to {target_number}: {sms_message.sid}")
     except Exception as e:
-        print(f"Failed to send SMS: {e}")
+        logging.error(f"Failed to send SMS: {e}")
 
 # Example usage
 if __name__ == '__main__':
-    send_sms('your_account_sid', 'your_auth_token', 'your_twilio_number', '+1234567890', 'Phishing Alert! Click the link: http://fake-login.com')
+    send_sms('+1234567890', 'Phishing Alert! Click the link: http://fake-login.com')
