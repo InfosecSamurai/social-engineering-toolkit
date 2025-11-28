@@ -2,10 +2,14 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import logging
+import os
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Configuration
-sender_email = 'youremail@example.com'
-sender_password = 'yourpassword'
+sender_email = os.getenv('SENDER_EMAIL')  # Use environment variable
+sender_password = os.getenv('SENDER_PASSWORD')  # Use environment variable
 subject = 'Urgent Request for Information'
 
 body = """
@@ -25,13 +29,13 @@ def send_pretexting_email(receiver_email, name):
         msg['From'] = sender_email
         msg['To'] = receiver_email
         msg['Subject'] = subject
-        
+
         # Create the body of the email
         message = body.format(name=name)
         msg.attach(MIMEText(message, 'plain'))
-        
+
         # Set up the server and send the email
-        server = smtplib.SMTP('smtp.example.com', 587)
+        server = smtplib.SMTP('smtp.example.com', 587)  # Replace with a valid SMTP server
         server.starttls()
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, receiver_email, msg.as_string())
@@ -43,4 +47,4 @@ def send_pretexting_email(receiver_email, name):
 
 # Example usage
 if __name__ == '__main__':
-    send_pretexting_email('victim@example.com', 'John Doe')
+    send_pretexting_email('victim@example.com', 'John Doe')  # Replace with a test email
