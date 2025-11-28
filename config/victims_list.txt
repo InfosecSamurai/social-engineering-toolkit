@@ -1,4 +1,5 @@
-email:victim1@example.com
-email:victim2@example.com
-sms:+1234567890
-sms:+1987654321
+victims:
+  - email: victim1@example.com
+  - email: victim2@example.com
+  - sms: +1234567890
+  - sms: +1987654321
