@@ -1,10 +1,14 @@
 from twilio.rest import Client
 import logging
+import os
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Twilio credentials (Sign up for a Twilio account to get these)
-account_sid = 'your_account_sid'
-auth_token = 'your_auth_token'
-twilio_number = 'your_twilio_number'
+account_sid = os.getenv('TWILIO_ACCOUNT_SID')  # Use environment variable
+auth_token = os.getenv('TWILIO_AUTH_TOKEN')  # Use environment variable
+twilio_number = os.getenv('TWILIO_NUMBER')  # Use environment variable
 
 client = Client(account_sid, auth_token)
 
@@ -22,4 +26,4 @@ def send_smishing_sms(target_phone):
 
 # Example usage
 if __name__ == '__main__':
-    send_smishing_sms('+1234567890')
+    send_smishing_sms('+1234567890')  # Replace with a test phone number
