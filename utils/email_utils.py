@@ -1,32 +1,73 @@
 import smtplib
+import logging
+import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os
-import logging
 
-def send_email(receiver_email, subject, message):
-    """Send an email using SMTP."""
-    sender_email = os.getenv('EMAIL_USERNAME')  # Use environment variable
-    sender_password = os.getenv('EMAIL_PASSWORD')  # Use environment variable
-    
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = receiver_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(message, 'plain'))
+# -------------------------------
+# Environment Config
+# -------------------------------
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.example.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+EMAIL_USERNAME = os.getenv("EMAIL_USERNAME")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
-        # Connect to SMTP server
-        server = smtplib.SMTP('smtp.example.com', 587)  # Consider making this configurable
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-        server.quit()
+# -------------------------------
+# Email Service
+# -------------------------------
+class EmailService:
+    def __init__(self):
+        self.server = SMTP_SERVER
+        self.port = SMTP_PORT
+        self.username = EMAIL_USERNAME
+        self.password = EMAIL_PASSWORD
 
-        logging.info(f"Email sent to {receiver_email}")
-    except Exception as e:
-        logging.error(f"Failed to send email: {e}")
+    def validate(self):
+        """Ensure required credentials exist."""
+        if not self.username or not self.password:
+            raise ValueError("Missing EMAIL_USERNAME or EMAIL_PASSWORD")
 
-# Example usage
-if __name__ == '__main__':
-    send_email('victim@example.com', 'Security Alert', 'Click the link: http://fake-login.com')
+    def send(self, to_email, subject, body):
+        """Send an email (lab mode only)."""
+        try:
+            self.validate()
+
+            msg = MIMEMultipart()
+            msg["From"] = self.username
+            msg["To"] = to_email
+            msg["Subject"] = subject
+            msg.attach(MIMEText(body, "plain"))
+
+            with smtplib.SMTP(self.server, self.port) as server:
+                server.starttls()
+                server.login(self.username, self.password)
+                server.sendmail(self.username, to_email, msg.as_string())
+
+            logging.info(f"[SUCCESS] Email sent to {to_email}")
+
+        except Exception as e:
+            logging.error(f"[ERROR] Failed to send email: {e}")
+
+    def simulate(self, to_email, subject, body):
+        """Simulate sending email safely."""
+        logging.info(f"[SIMULATION] Email would be sent to: {to_email}")
+        logging.info(f"Subject: {subject}")
+        logging.info(f"Body:\n{body}")
+
+        print("\n--- SIMULATED EMAIL ---")
+        print(f"To: {to_email}")
+        print(f"Subject: {subject}")
+        print(body)
+        print("------------------------\n")
+
+
+# -------------------------------
+# Optional Direct Test
+# -------------------------------
+if __name__ == "__main__":
+    service = EmailService()
+    service.simulate(
+        "test@example.com",
+        "Test Subject",
+        "This is a simulated email."
+    )
