@@ -1,50 +1,58 @@
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 import logging
-import os
+from utils.email_utils import EmailService
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# -------------------------------
+# Default Message
+# -------------------------------
+DEFAULT_SUBJECT = "Quick Request"
+DEFAULT_BODY = """
+Hi {name},
 
-# Configuration
-sender_email = os.getenv('SENDER_EMAIL')  # Use environment variable
-sender_password = os.getenv('SENDER_PASSWORD')  # Use environment variable
-subject = 'Urgent Request for Information'
+I need your help with something urgent. Can you take a look at the link below and get back to me?
 
-body = """
-Hello {name},
+http://example-link.com
 
-I need your help with a quick verification process for our company's system. 
-Could you provide me with your account number and username?
-
-Best Regards,
-HR Department
+Thanks,
+Admin
 """
 
-def send_pretexting_email(receiver_email, name):
-    """Send pretexting email."""
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = receiver_email
-        msg['Subject'] = subject
+# -------------------------------
+# Core Logic
+# -------------------------------
+def execute(target, name="User", subject=DEFAULT_SUBJECT, body=DEFAULT_BODY, mode="simulation"):
+    service = EmailService()
+    message = body.format(name=name)
 
-        # Create the body of the email
-        message = body.format(name=name)
-        msg.attach(MIMEText(message, 'plain'))
+    if mode == "simulation":
+        service.simulate(target, subject, message)
+    elif mode == "lab":
+        service.send(target, subject, message)
+    else:
+        logging.warning(f"Unknown mode: {mode}")
+        print(f"[!] Unknown mode: {mode}")
 
-        # Set up the server and send the email
-        server = smtplib.SMTP('smtp.example.com', 587)  # Replace with a valid SMTP server
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-        server.quit()
+# -------------------------------
+# Framework Entry
+# -------------------------------
+def run(config):
+    target = config.get("target")
+    mode = config.get("mode", "simulation")
 
-        logging.info(f"Pretexting email sent to {receiver_email}")
-    except Exception as e:
-        logging.error(f"Failed to send pretexting email: {e}")
+    if not target:
+        logging.error("No target provided.")
+        print("[!] No target specified.")
+        return
 
-# Example usage
-if __name__ == '__main__':
-    send_pretexting_email('victim@example.com', 'John Doe')  # Replace with a test email
+    logging.info(f"Pretexting module started | Target: {target} | Mode: {mode}")
+
+    execute(target, mode=mode)
+
+# -------------------------------
+# Direct Test
+# -------------------------------
+if __name__ == "__main__":
+    test_config = {
+        "target": "test@example.com",
+        "mode": "simulation"
+    }
+    run(test_config)
